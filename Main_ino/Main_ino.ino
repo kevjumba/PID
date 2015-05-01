@@ -1,7 +1,7 @@
 int leftServoPin = 1;  //port number for left motor
 int rightServoPin = 2; //port numbersfor right motor
 int pulse = 1500; //delay in microseconds
-
+//i2c slave address AD0 pin 9 at b1101000 and b1101001
 void setup()
 {
   pinMode(leftServoPin, OUTPUT);
