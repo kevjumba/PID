@@ -7,7 +7,7 @@ void setup()
   pinMode(leftServoPin, OUTPUT);
   pinMode(rightServoPin, OUTPUT);
   Serial.begin(9600);
-
+  //rishab is stupid
 void loop() {
   double desiredTilt = 0;
   double currentTilt = getCurrentTilt();
