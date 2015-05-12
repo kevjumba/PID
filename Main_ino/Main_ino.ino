@@ -75,6 +75,13 @@ void setup(){
   pinMode(left_motor_speed_pin, OUTPUT);
   pinMode(left_motor_forward_pin, OUTPUT);
   pinMode(left_motor_backward_pin, OUTPUT);
+  
+  off(left_motor_speed_pin);
+  off(left_motor_forward_pin);
+  off(left_motor_backward_pin);
+  off(right_motor_speed_pin);
+  off(right_motor_forward_pin);
+  off(right_motor_backward_pin);
 
   // initialize serial communication
   // (38400 chosen because it works as well at 8MHz as it does at 16MHz, but
@@ -92,7 +99,8 @@ void setup(){
     // configure Arduino LED for
   pinMode(LED_PIN, OUTPUT);
 }
-  //rishab is stupid
+
+
 void loop() {
   accelgyro.getMotion9(&ax, &ay, &az, &gx, &gy, &gz, &mx, &my, &mz);
   double desiredTilt = 0;
@@ -102,7 +110,10 @@ void loop() {
   double kP = 1;
   double kI = 0;
   double kD = 0.5; 
-  double torq = pid(currentTilt-desiredTilt, 0, currentTilt + currentTiltRate, kP, kI, kD);
+  double torq = pid(currentTilt-desiredTilt, 0, currentTilt + tiltRate, kP, kI, kD);
+
+  go(2500,2500, 2000);
+  delay(2000);
 }
 
 double getCurrentTilt(){
@@ -112,7 +123,8 @@ double getCurrentTilt(){
 double getCurrentTiltRate(){
   //get the rate possibly through gyro, or we can manually calculate it
 }
-double pid(error, integral, derivative, Kp, Ki, Kd) {
+
+double pid(double error, double integral, double derivative, double Kp, double Ki, double Kd) {
   return -(error * Kp + integral * Ki + derivative * Kd);
 }
 
@@ -123,4 +135,42 @@ void on(int pin){
 void off(int pin){
   digitalWrite(pin, LOW);
 }
+
+void go(int left_motor_speed, int right_motor_speed, int time){
+  set_motor(left_motor_speed_pin,
+            left_motor_forward_pin,
+            left_motor_backward_pin,
+            left_motor_speed);
+  set_motor(right_motor_speed_pin,
+            right_motor_forward_pin,
+            right_motor_backward_pin,
+            right_motor_speed);
+  delay(time);
+    set_motor(left_motor_speed_pin,
+            left_motor_forward_pin,
+            left_motor_backward_pin,
+            0);
+  set_motor(right_motor_speed_pin,
+            right_motor_forward_pin,
+            right_motor_backward_pin,
+            0);
+}
+ 
+
+void set_motor(int speed_pin, int forward_pin, int backward_pin, int speed){
+  if(speed > 0){
+    off(backward_pin);
+    on(forward_pin);}
+  else if(speed < 0){
+    off(forward_pin);
+    on(backward_pin);
+    speed = -speed;}
+  else{ // speed is 0
+    off(forward_pin);
+    off(backward_pin);}
+  if(speed > 255){
+    speed = 255;}
+  analogWrite(speed_pin, speed);
+}
+ 
  
