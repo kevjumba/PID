@@ -6,28 +6,10 @@
 //     2011-10-07 - initial release
 //     2013-1-4 - added raw magnetometer output
 
-/* ============================================
+/*
 I2Cdev device library code is placed under the MIT license
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
-===============================================
 */
+
 //imports
 #include "Wire.h"
 
@@ -76,6 +58,7 @@ void setup(){
   pinMode(left_motor_forward_pin, OUTPUT);
   pinMode(left_motor_backward_pin, OUTPUT);
   
+  //set all motors to off by default
   off(left_motor_speed_pin);
   off(left_motor_forward_pin);
   off(left_motor_backward_pin);
@@ -112,8 +95,8 @@ void loop() {
   double kD = 0.5; 
   double torq = pid(currentTilt-desiredTilt, 0, currentTilt + tiltRate, kP, kI, kD);
 
-  go(2500,2500, 2000);
-  delay(2000);
+  //go(2500,2500, 2000);
+ // delay(2000);
 }
 
 double getCurrentTilt(){
@@ -137,39 +120,28 @@ void off(int pin){
 }
 
 void go(int left_motor_speed, int right_motor_speed, int time){
-  set_motor(left_motor_speed_pin,
-            left_motor_forward_pin,
-            left_motor_backward_pin,
-            left_motor_speed);
-  set_motor(right_motor_speed_pin,
-            right_motor_forward_pin,
-            right_motor_backward_pin,
-            right_motor_speed);
+  set_motor(left_motor_speed_pin, left_motor_forward_pin, left_motor_backward_pin, left_motor_speed);
+  set_motor(right_motor_speed_pin, right_motor_forward_pin, right_motor_backward_pin, right_motor_speed);
   delay(time);
-    set_motor(left_motor_speed_pin,
-            left_motor_forward_pin,
-            left_motor_backward_pin,
-            0);
-  set_motor(right_motor_speed_pin,
-            right_motor_forward_pin,
-            right_motor_backward_pin,
-            0);
+  set_motor(left_motor_speed_pin, left_motor_forward_pin, left_motor_backward_pin, 0);
+  set_motor(right_motor_speed_pin, right_motor_forward_pin, right_motor_backward_pin, 0);
 }
  
 
 void set_motor(int speed_pin, int forward_pin, int backward_pin, int speed){
   if(speed > 0){
     off(backward_pin);
-    on(forward_pin);}
-  else if(speed < 0){
+    on(forward_pin);
+  }else if(speed < 0){
     off(forward_pin);
     on(backward_pin);
-    speed = -speed;}
-  else{ // speed is 0
+    speed = -speed;
+  }else{ // speed is 0
     off(forward_pin);
-    off(backward_pin);}
-  if(speed > 255){
-    speed = 255;}
+    off(backward_pin);
+  }if(speed > 255){
+    speed = 255;
+  }
   analogWrite(speed_pin, speed);
 }
  
