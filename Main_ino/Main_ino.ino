@@ -42,6 +42,10 @@ int16_t ax, ay, az;
 int16_t gx, gy, gz;
 int16_t mx, my, mz;
 
+int16_t iax, iay, iaz;
+int16_t igx, igy, igz;
+int16_t imx, imy, imz;
+
 #define LED_PIN 13
 bool blinkState = false;
 
@@ -78,8 +82,11 @@ void setup(){
   // verify connection
   Serial.println("Testing device connections...");
   Serial.println(accelgyro.testConnection() ? "MPU6050 connection successful" : "MPU6050 connection failed");
+  
+  accelgyro.getMotion9(&iax, &iay, &iaz, &igx, &igy, &igz, &imx, &imy, &imz);
+  
 
-    // configure Arduino LED for
+  // configure Arduino LED for
   pinMode(LED_PIN, OUTPUT);
 }
 
@@ -90,17 +97,17 @@ void loop() {
   double currentTilt = getCurrentTilt();
   double tiltRate = getCurrentTiltRate();
   //constants are random guesses from robot tuning this year
-  double kP = 1;
+  Serial.println(gy);
+  double kP = 0.2;
   double kI = 0;
-  double kD = 0.5; 
-  double torq = pid(currentTilt-desiredTilt, 0, currentTilt + tiltRate, kP, kI, kD);
-
-  //go(2500,2500, 2000);
+  double kD = 0; 
+  double torq = pid(currentTilt-desiredTilt, 0, 0, kP, kI, kD);
+  go(torq, torq, 100);
  // delay(2000);
 }
 
 double getCurrentTilt(){
-  //get current tilt from gyro
+  return gy - igy;
 }
 
 double getCurrentTiltRate(){
@@ -108,7 +115,7 @@ double getCurrentTiltRate(){
 }
 
 double pid(double error, double integral, double derivative, double Kp, double Ki, double Kd) {
-  return -(error * Kp + integral * Ki + derivative * Kd);
+  return (error * Kp + integral * Ki + derivative * Kd);
 }
 
 void on(int pin){
