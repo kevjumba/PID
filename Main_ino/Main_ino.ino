@@ -47,6 +47,8 @@ boolean state = false;
   double kP = 0.2;
   double kI = 0.3;
   double kD = 0; 
+  double compAngleX;
+  double compAngleY;
 //i2c slave address AD0 pin 9 at b1101000 and b1101001
 void setup(){
   Wire.begin();
@@ -94,13 +96,15 @@ void loop() {
   double start = millis();
   
   accelgyro.getMotion9(&ax, &ay, &az, &gx, &gy, &gz, &mx, &my, &mz);
+  double pitch = (atan2(ay, az)+3.14)*RAD_TO_DEG; //y angle
+  double roll = (atan2(ax, az)+3.14)*RAD_TO_DEG; //x angle
   double desiredTilt = 0;
   double currentTilt = getCurrentTilt();
   //constants are random guesses from robot tuning this year
   //Serial.println(gy);
-  
   currentIntegral = getCurrentTiltIntegral(integral_time);
-  
+  compAngleX = (0.93 * (compAngleX + (gyroXrate * (double)(micros() - timer) / 1000000))) + (0.07 * roll);
+  compAngleY = (0.93 * (compAngleY + (gyroYrate * (double)(micros() - timer) / 1000000))) + (0.07 * pith);
   kP = 0.2;
   kI = 0.3;
   kD = 0.5; 
