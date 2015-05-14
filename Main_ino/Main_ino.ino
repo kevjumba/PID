@@ -1,16 +1,3 @@
-// I2C device class (I2Cdev) demonstration Arduino sketch for MPU9150
-// 1/4/2013 original by Jeff Rowberg <jeff@rowberg.net> at https://github.com/jrowberg/i2cdevlib
-//          modified by Aaron Weiss <aaron@sparkfun.com>
-//
-// Changelog:
-//     2011-10-07 - initial release
-//     2013-1-4 - added raw magnetometer output
-
-/*
-I2Cdev device library code is placed under the MIT license
-*/
-
-//imports
 #include "Wire.h"
 // I2Cdev and MPU6050 must be installed as libraries, or else the .cpp/.h files
 // for both classes must be in the include path of your project
@@ -31,6 +18,7 @@ int left_motor_forward_pin = 9;
 int left_motor_backward_pin = 10;
 
 int integral_time = 4;
+double time = 1;
 
 // class default I2C address is 0x68
 // specific I2C addresses may be passed as a parameter here
@@ -103,30 +91,35 @@ void setup(){
   pinMode(LED_PIN, OUTPUT);
 }
 void loop() {
+  double start = millis();
   
   accelgyro.getMotion9(&ax, &ay, &az, &gx, &gy, &gz, &mx, &my, &mz);
   double desiredTilt = 0;
   double currentTilt = getCurrentTilt();
-  double tiltRate = getCurrentTiltRate();
   //constants are random guesses from robot tuning this year
   //Serial.println(gy);
   
-  errorArray[intIndex] = getCurrentTilt();
   currentIntegral = getCurrentTiltIntegral(integral_time);
   
-  kP = 0.3;
-  kI = 0.9;
-  kD = 0; 
-  
- double torq = pid(currentTilt-desiredTilt, currentIntegral , 0, kP, kI, kD);
- go(torq, torq, 50);
+  kP = 0.2;
+  kI = 0.3;
+  kD = 0.5; 
+ double end = millis();
+ time = end - start;
+ double futureDerivative = getTiltDerivative(time);
+ double torq = pid(currentTilt-desiredTilt, currentIntegral, futureDerivative, kP, kI, kD);
+  go(torq, torq, 50);
  // delay(2000);
  printStatus(torq);
+
+ 
  
  intIndex++;
 }
 
 void printStatus(double sol){
+  Serial.print(getCurrentTilt());
+  Serial.print(" ");
   Serial.print(kP);
   Serial.print("*");
   Serial.print(getCurrentTilt());
@@ -137,7 +130,7 @@ void printStatus(double sol){
   Serial.print(" + ");
   Serial.print(kD);
   Serial.print("*");
-  Serial.print(getCurrentTiltRate());
+  Serial.print(getTiltDerivative(time));
   Serial.print(" = ");
   Serial.println(sol);
 }
@@ -145,6 +138,7 @@ void printStatus(double sol){
 double getCurrentTiltIntegral(int delta){
   double sum = 0;
   double riemann = 0;
+  errorArray[intIndex] = getCurrentTilt();
   int arraySize = 200;
   
   if(intIndex >= arraySize){
@@ -174,11 +168,16 @@ double getCurrentTilt(){
   return gy - igy;
 }
 
-double getCurrentTiltRate(){
-  return 0;
-  //get the rate possibly through gyro, or we can manually calculate it
-}
 
+double getTiltDerivative(double time) {
+  double difference = (errorArray[intIndex] - errorArray[intIndex - 1])/time;
+  double difference2 = (errorArray[intIndex-1] - errorArray[intIndex-2])/time;
+  double concavity = (difference - difference2)/time;
+  double value = difference + (concavity)*time;
+  return -value;
+  
+   
+} 
 double pid(double error, double integral, double derivative, double Kp, double Ki, double Kd) {
   return (error * Kp + integral * Ki + derivative * Kd);
 }
@@ -216,6 +215,3 @@ void set_motor(int speed_pin, int forward_pin, int backward_pin, int speed){
   }
   analogWrite(speed_pin, speed);
 }
-
- 
- 
