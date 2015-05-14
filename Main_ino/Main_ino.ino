@@ -111,14 +111,15 @@ void loop() {
   //constants are random guesses from robot tuning this year
   //Serial.println(gy);
   
+  errorArray[intIndex] = getCurrentTilt();
   currentIntegral = getCurrentTiltIntegral(integral_time);
   
   kP = 0.3;
   kI = 0.9;
   kD = 0; 
   
-  double torq = pid(currentTilt-desiredTilt, currentIntegral , 0, kP, kI, kD);
-  go(torq, torq, 50);
+ double torq = pid(currentTilt-desiredTilt, currentIntegral , 0, kP, kI, kD);
+ go(torq, torq, 50);
  // delay(2000);
  printStatus(torq);
  
@@ -126,9 +127,6 @@ void loop() {
 }
 
 void printStatus(double sol){
-  Serial.print("Gyro val: ");
-  Serial.print(getCurrentTilt());
-  Serial.print(" ");
   Serial.print(kP);
   Serial.print("*");
   Serial.print(getCurrentTilt());
@@ -147,7 +145,6 @@ void printStatus(double sol){
 double getCurrentTiltIntegral(int delta){
   double sum = 0;
   double riemann = 0;
-  errorArray[intIndex] = getCurrentTilt();
   int arraySize = 200;
   
   if(intIndex >= arraySize){
