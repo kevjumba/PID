@@ -25,7 +25,9 @@ double time = 1;
 // AD0 low = 0x68 (default for InvenSense evaluation board)
 // AD0 high = 0x69
 MPU6050 accelgyro;
-int errorArray [200];
+
+int arraySize = 300;
+int errorArray[300];
 
 int intIndex = 0;
 
@@ -99,6 +101,13 @@ void loop() {
   //constants are random guesses from robot tuning this year
   //Serial.println(gy);
   
+  errorArray[intIndex] = currentTilt;
+
+  //for(int i = 0; i < arraySize; i++){
+ //     Serial.print(errorArray[i]);
+ //     Serial.print(", ");
+ //   }
+//      Serial.println(" ");
   currentIntegral = getCurrentTiltIntegral(integral_time);
   
   kP = 0.2;
@@ -118,8 +127,8 @@ void loop() {
 }
 
 void printStatus(double sol){
-  Serial.print(getCurrentTilt());
-  Serial.print(" ");
+  Serial.print(intIndex);
+  Serial.print(" | ");
   Serial.print(kP);
   Serial.print("*");
   Serial.print(getCurrentTilt());
@@ -138,18 +147,17 @@ void printStatus(double sol){
 double getCurrentTiltIntegral(int delta){
   double sum = 0;
   double riemann = 0;
-  errorArray[intIndex] = getCurrentTilt();
-  int arraySize = 200;
-  
-  if(intIndex >= arraySize){
-   intIndex = delta;
+    if(intIndex >= arraySize){
+   intIndex = delta-1;
+    
     for(int i = 0; i < delta; i++){
+      
       errorArray[i] = errorArray[arraySize - delta + i];     
     }
-  }
+    }
   
   if(intIndex < delta){
-    for(int i = 0; i < delta; i++){
+    for(int i = 0; i < intIndex; i++){
       sum += errorArray[i];
     }  
     riemann = sum/delta;
