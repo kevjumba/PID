@@ -28,9 +28,6 @@ MPU6050 accelgyro;
 int errorArray [200];
 
 int intIndex = 0;
-
-
-
 int16_t ax, ay, az;
 int16_t gx, gy, gz;
 int16_t mx, my, mz;
@@ -43,12 +40,12 @@ int16_t imx, imy, imz;
 bool blinkState = false;
 boolean state = false;
 
-  double currentIntegral = 0;
-  double kP = 0.2;
-  double kI = 0.3;
-  double kD = 0; 
-  double compAngleX;
-  double compAngleY;
+double currentIntegral = 0;
+double kP = 0.2;
+double kI = 0.3;
+double kD = 0; 
+double compAngleX;
+double compAngleY;
 //i2c slave address AD0 pin 9 at b1101000 and b1101001
 void setup(){
   Wire.begin();
@@ -69,10 +66,6 @@ void setup(){
   off(right_motor_speed_pin);
   off(right_motor_forward_pin);
   off(right_motor_backward_pin);
-
-
-  
-  
   // initialize serial communication
   // (38400 chosen because it works as well at 8MHz as it does at 16MHz, but
   // it's really up to you depending on your project)
@@ -108,17 +101,17 @@ void loop() {
   kP = 0.2;
   kI = 0.3;
   kD = 0.5; 
- double end = millis();
- time = end - start;
- double futureDerivative = getTiltDerivative(time);
- double torq = pid(currentTilt-desiredTilt, currentIntegral, futureDerivative, kP, kI, kD);
+  double end = millis();
+  time = end - start;
+  double futureDerivative = getTiltDerivative(time);
+  double torq = pid(currentTilt-desiredTilt, currentIntegral, futureDerivative, kP, kI, kD);
   go(torq, torq, 50);
- // delay(2000);
- printStatus(torq);
+  // delay(2000);
+  printStatus(torq);
 
  
  
- intIndex++;
+  intIndex++;
 }
 
 void printStatus(double sol){
