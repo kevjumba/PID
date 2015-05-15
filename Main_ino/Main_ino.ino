@@ -92,12 +92,12 @@ void loop() {
   double pitch = (atan2(ay, az)+3.14)*RAD_TO_DEG; //y angle
   double roll = (atan2(ax, az)+3.14)*RAD_TO_DEG; //x angle
   double desiredTilt = 0;
+  compAngleX = (0.93 * (compAngleX + (gyroXrate * (double)(micros() - timer) / 1000000))) + (0.07 * roll);
+  compAngleY = (0.93 * (compAngleY + (gyroYrate * (double)(micros() - timer) / 1000000))) + (0.07 * pith);
+  currentIntegral = getCurrentTiltIntegral(integral_time);
   double currentTilt = getCurrentTilt();
   //constants are random guesses from robot tuning this year
   //Serial.println(gy);
-  currentIntegral = getCurrentTiltIntegral(integral_time);
-  compAngleX = (0.93 * (compAngleX + (gyroXrate * (double)(micros() - timer) / 1000000))) + (0.07 * roll);
-  compAngleY = (0.93 * (compAngleY + (gyroYrate * (double)(micros() - timer) / 1000000))) + (0.07 * pith);
   kP = 0.2;
   kI = 0.3;
   kD = 0.5; 
@@ -108,9 +108,6 @@ void loop() {
   go(torq, torq, 50);
   // delay(2000);
   printStatus(torq);
-
- 
- 
   intIndex++;
 }
 
