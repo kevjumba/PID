@@ -169,7 +169,7 @@ double getCurrentTiltIntegral(int delta){
 }
 
 double getCurrentTilt(){
-  return gy - igy;
+  return compAngleY - igy;
 }
 
 
