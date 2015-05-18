@@ -44,8 +44,8 @@ double currentIntegral = 0;
 double kP = 0.2;
 double kI = 0.3;
 double kD = 0; 
-double compAngleX;
-double compAngleY;
+double compAngleX = 0;
+double compAngleY = 0;
 //i2c slave address AD0 pin 9 at b1101000 and b1101001
 void setup(){
   Wire.begin();
@@ -92,21 +92,23 @@ void loop() {
   double pitch = (atan2(ay, az)+3.14)*RAD_TO_DEG; //y angle
   double roll = (atan2(ax, az)+3.14)*RAD_TO_DEG; //x angle
   double desiredTilt = 0;
-  compAngleX = (0.93 * (compAngleX + (gyroXrate * (double)(micros() - timer) / 1000000))) + (0.07 * roll);
-  compAngleY = (0.93 * (compAngleY + (gyroYrate * (double)(micros() - timer) / 1000000))) + (0.07 * pith);
-  currentIntegral = getCurrentTiltIntegral(integral_time);
-  double currentTilt = getCurrentTilt();
-  //constants are random guesses from robot tuning this year
-  //Serial.println(gy);
-  currentIntegral = getCurrentTiltIntegral(integral_time);
-
   kP = 0.2;
   kI = 0.3;
   kD = 0.5; 
   double end = millis();
   time = end - start;
+  compAngleX = (0.93 * (compAngleX + (gx * (double)(micros() - time) / 1000000))) + (0.07 * roll);
+  compAngleY = (0.93 * (compAngleY + (gy * (double)(micros() - time) / 1000000))) + (0.07 * pitch);
+  currentIntegral = getCurrentTiltIntegral(integral_time);
+  double currentTilt = getCurrentTilt();
   double futureDerivative = getTiltDerivative(time);
   double torq = pid(currentTilt-desiredTilt, currentIntegral, futureDerivative, kP, kI, kD);
+
+  //constants are random guesses from robot tuning this year
+  //Serial.println(gy);
+  currentIntegral = getCurrentTiltIntegral(integral_time);
+
+
   go(torq, torq, 50);
   // delay(2000);
   printStatus(torq);
