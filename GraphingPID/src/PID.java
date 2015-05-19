@@ -14,14 +14,15 @@ public class PID extends PApplet{
 	 // I know that the first port in the serial list on my mac
 	 // is always my  Arduino, so I open Serial.list()[0].
 	 // Open whatever port is the one you're using.
-	 myPort = new Serial(this, "/dev/ttyACM0", 9600);
+	 myPort = new Serial(this, "/dev/ttyACM4", 9600);
 	 // don't generate a serialEvent() unless you get a newline character:
 	 myPort.bufferUntil('\n');
 	 // set inital background:
-	 background(0);
+	 background(255);
 	 }
 	 public void draw() {
 	 // everything happens in the serialEvent()
+		 serialEvent(myPort);
 	 }
 	 
 	 void serialEvent (Serial myPort) {
