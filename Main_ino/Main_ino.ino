@@ -30,9 +30,6 @@ int arraySize = 300;
 int errorArray[300];
 
 int intIndex = 0;
-
-
-
 int16_t ax, ay, az;
 int16_t gx, gy, gz;
 int16_t mx, my, mz;
@@ -45,10 +42,12 @@ int16_t imx, imy, imz;
 bool blinkState = false;
 boolean state = false;
 
-  double currentIntegral = 0;
-  double kP = 0.2;
-  double kI = 0.3;
-  double kD = 0; 
+double currentIntegral = 0;
+double kP = 0.2;
+double kI = 0.3;
+double kD = 0; 
+double compAngleX = 0;
+double compAngleY = 0;
 //i2c slave address AD0 pin 9 at b1101000 and b1101001
 void setup(){
   Wire.begin();
@@ -69,10 +68,6 @@ void setup(){
   off(right_motor_speed_pin);
   off(right_motor_forward_pin);
   off(right_motor_backward_pin);
-
-
-  
-  
   // initialize serial communication
   // (38400 chosen because it works as well at 8MHz as it does at 16MHz, but
   // it's really up to you depending on your project)
@@ -96,8 +91,21 @@ void loop() {
   double start = millis();
   
   accelgyro.getMotion9(&ax, &ay, &az, &gx, &gy, &gz, &mx, &my, &mz);
+  double pitch = (atan2(ay, az)+3.14)*RAD_TO_DEG; //y angle
+  double roll = (atan2(ax, az)+3.14)*RAD_TO_DEG; //x angle
   double desiredTilt = 0;
+  kP = 0.2;
+  kI = 0.3;
+  kD = 0.5; 
+  double end = millis();
+  time = end - start;
+//  compAngleX = (0.93 * (compAngleX + (gx * (double)(micros() - time) / 1000000))) + (0.07 * roll);
+//  compAngleY = (0.93 * (compAngleY + (gy * (double)(micros() - time) / 1000000))) + (0.07 * pitch);
+  currentIntegral = getCurrentTiltIntegral(integral_time);
   double currentTilt = getCurrentTilt();
+  double futureDerivative = getTiltDerivative(time);
+  double torq = pid(currentTilt-desiredTilt, currentIntegral, futureDerivative, kP, kI, kD);
+
   //constants are random guesses from robot tuning this year
   //Serial.println(gy);
   
@@ -109,39 +117,30 @@ void loop() {
  //   }
 //      Serial.println(" ");
   currentIntegral = getCurrentTiltIntegral(integral_time);
-  
-  kP = 0.2;
-  kI = 0.3;
-  kD = 0.5; 
- double end = millis();
- time = end - start;
- double futureDerivative = getTiltDerivative(time);
- double torq = pid(currentTilt-desiredTilt, currentIntegral, futureDerivative, kP, kI, kD);
-  go(torq, torq, 50);
- // delay(2000);
- printStatus(torq);
 
- 
- 
- intIndex++;
+
+  go(torq, torq, 50);
+  // delay(2000);
+  printStatus(torq);
+  intIndex++;
 }
 
 void printStatus(double sol){
-  Serial.print(intIndex);
-  Serial.print(" | ");
-  Serial.print(kP);
-  Serial.print("*");
   Serial.print(getCurrentTilt());
-  Serial.print(" + ");
-  Serial.print(kI);
-  Serial.print("*");
-  Serial.print(currentIntegral);
-  Serial.print(" + ");
-  Serial.print(kD);
-  Serial.print("*");
-  Serial.print(getTiltDerivative(time));
-  Serial.print(" = ");
-  Serial.println(sol);
+  Serial.print(" \n");
+//  Serial.print(kP);
+//  Serial.print("*");
+//  Serial.print(getCurrentTilt());
+//  Serial.print(" + ");
+//  Serial.print(kI);
+//  Serial.print("*");
+//  Serial.print(currentIntegral);
+//  Serial.print(" + ");
+//  Serial.print(kD);
+//  Serial.print("*");
+//  Serial.print(getTiltDerivative(time));
+//  Serial.print(" = ");
+//  Serial.println(sol);
 }
 
 double getCurrentTiltIntegral(int delta){
