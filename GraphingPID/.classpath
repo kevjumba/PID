@@ -2,7 +2,8 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7"/>
-	<classpathentry kind="lib" path="C:/Processing 2/processing-2.0b8-windows32/processing-2.0b8/core/library/core.jar"/>
-	<classpathentry kind="lib" path="C:/processing-2.2.1/modes/java/libraries/serial/library/serial.jar"/>
+	<classpathentry kind="lib" path="/home/kevin/processing-2.2.1/core/library/core.jar"/>
+	<classpathentry kind="lib" path="/home/kevin/processing-2.2.1/modes/java/libraries/serial/library/serial.jar"/>
+	<classpathentry kind="lib" path="/home/kevin/jSSC-2.8.0-Release/jssc.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

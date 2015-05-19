@@ -97,8 +97,8 @@ void loop() {
   kD = 0.5; 
   double end = millis();
   time = end - start;
-  compAngleX = (0.93 * (compAngleX + (gx * (double)(micros() - time) / 1000000))) + (0.07 * roll);
-  compAngleY = (0.93 * (compAngleY + (gy * (double)(micros() - time) / 1000000))) + (0.07 * pitch);
+//  compAngleX = (0.93 * (compAngleX + (gx * (double)(micros() - time) / 1000000))) + (0.07 * roll);
+//  compAngleY = (0.93 * (compAngleY + (gy * (double)(micros() - time) / 1000000))) + (0.07 * pitch);
   currentIntegral = getCurrentTiltIntegral(integral_time);
   double currentTilt = getCurrentTilt();
   double futureDerivative = getTiltDerivative(time);
@@ -117,20 +117,20 @@ void loop() {
 
 void printStatus(double sol){
   Serial.print(getCurrentTilt());
-  Serial.print(" ");
-  Serial.print(kP);
-  Serial.print("*");
-  Serial.print(getCurrentTilt());
-  Serial.print(" + ");
-  Serial.print(kI);
-  Serial.print("*");
-  Serial.print(currentIntegral);
-  Serial.print(" + ");
-  Serial.print(kD);
-  Serial.print("*");
-  Serial.print(getTiltDerivative(time));
-  Serial.print(" = ");
-  Serial.println(sol);
+  Serial.print(" \n");
+//  Serial.print(kP);
+//  Serial.print("*");
+//  Serial.print(getCurrentTilt());
+//  Serial.print(" + ");
+//  Serial.print(kI);
+//  Serial.print("*");
+//  Serial.print(currentIntegral);
+//  Serial.print(" + ");
+//  Serial.print(kD);
+//  Serial.print("*");
+//  Serial.print(getTiltDerivative(time));
+//  Serial.print(" = ");
+//  Serial.println(sol);
 }
 
 double getCurrentTiltIntegral(int delta){
@@ -163,7 +163,7 @@ double getCurrentTiltIntegral(int delta){
 }
 
 double getCurrentTilt(){
-  return compAngleY - igy;
+  return gy - igy;
 }
 
 
